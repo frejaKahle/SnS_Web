@@ -1,0 +1,356 @@
+@use "sass:math";
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700');
+$bg-color: rgb(210, 180, 150);
+$select-color: rgb(91, 149, 168);
+$fs: 0.65vw;
+$root2: math.hypot(1, 1);
+:root {
+    background-color: $bg-color;
+    box-sizing: content-box;
+    font-size: $fs;
+    font-family: 'Open Sans', sans-serif;
+}
+
+hr {
+    border: 0.1vw solid black;
+}
+
+@for $i from 1 through 6 {
+    h#{$i} {
+        font-size: $fs* (10 - $i) * 0.25;
+        margin: $fs;
+    }
+}
+
+section {
+    margin: 0.5vw;
+}
+
+
+
+
+@mixin cons-border {
+    border: solid 0.35vw black;
+    border-radius: 0.7vw;
+}
+@mixin border-gradient {
+    border-color: transparent;
+    >&:after {
+        position: absolute;
+        content: "";
+        width: 100%;
+        height: 100%;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        @include cons-border;
+        border-color: transparent;
+        $mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        mask: $mask;
+        -webkit-mask: $mask;
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+    }
+}
+@mixin border-gradient-none {
+    @include border-gradient;
+    background: linear-gradient(0deg, #0001, #0003);
+    >&:after {
+        background: #000 border-box;
+    }
+}
+@mixin border-gradient-purple {
+    @include border-gradient;
+    background: linear-gradient(0deg, #0033, #5043) !important;
+    >&:after {
+        background: linear-gradient(0deg, #003, #504) border-box !important;
+    }
+}
+
+@mixin border-gradient-red {
+    @include border-gradient;
+    background: linear-gradient(0deg, #2003, #5223) !important;
+    >&:after {
+        background: linear-gradient(0deg, #200, #522) border-box !important;
+    }
+}
+@mixin border-gradient-blue {
+    @include border-gradient;
+    background: linear-gradient(0deg, #1013, #0053) !important;
+    >&:after {
+        background: linear-gradient(0deg, #101, #005) border-box !important;
+    }
+}
+@mixin border-gradient-selected {
+    @include border-gradient;
+    filter: drop-shadow(0 0 1vw $select-color);
+    >&:after {
+        background: linear-gradient(0deg, #249, $select-color) border-box !important;
+    }
+}
+@mixin border-gradient-selected2 {
+    @include border-gradient;
+    filter: drop-shadow(0 0 1vw $select-color);
+    >&:after {
+        background: linear-gradient(-90deg, #249, $select-color) border-box !important;
+    }
+}
+
+.cardrow {
+    margin: 0.5vw 0;
+    padding: 0 0.25vw 0 0;
+    display: flex;
+}
+
+.cardholder {
+    margin: 0.5vw 0;
+    padding: 0 0.25vw 0 0;
+    display: flex;
+    width: fit-content;
+}
+
+.mods {
+    content: 'Modifications';
+    @include cons-border;
+    height: 15vw;
+    position: relative;
+    @for $i from 4 through 8 {
+        &.width#{$i} {
+            width: $i * 8.4vw + 0.05vw;
+        }
+    }
+}
+
+@mixin card-top-margin($marg) {
+    top: $marg;
+        height: 13.5vw - $marg;
+}
+
+.mods .cardholder {
+    position: absolute;
+    margin: 0;
+    top: 0;
+    left: 0;
+    >:first-child {
+        @include card-top-margin(calc($fs *  11 / 3));
+        position: relative;
+        transition: transform 0.5s ease-in-out, z-index 0.5s linear, top 0.5s ease-in-out, height 0.5s ease-in-out;
+        &:hover {
+            @include card-top-margin(0);
+        }
+    }
+    .card {
+        @include border-gradient-none;
+        &.action:hover:not(.empty) {
+            @include border-gradient-selected;
+        }
+    }
+}
+
+.card {
+    @include cons-border;
+    margin-inline: 0;
+    margin: 0.25vw 0 0.25vw 0.25vw;
+    padding: 0.25vw;
+    width: 7vw;
+    height: 13.5vw;
+    box-sizing: content-box;
+    text-align: center;
+    >* {
+        margin: $fs * .85;
+        margin-top: $fs * 0.25;
+        margin-bottom: $fs * 0.25;
+    }
+    &.empty {
+        border-color: rgba(0, 0, 0, 0.5);
+        color: rgba(0, 0, 0, 0.5);
+    }
+    &.rare {
+        @include border-gradient-purple;
+    }
+    &.set {
+        @include border-gradient-red;
+    }
+    &.rare.set {
+        @include border-gradient-blue;
+    }
+}
+
+
+.popup{
+    position: absolute;
+    display: block;
+    transition: transform 0.5s ease-in-out, z-index 0.5s linear;
+    
+    >*:first-child {
+        position: relative;
+        z-index: 1;
+        top: 50%;
+        transform: translate(0,-60%);
+        transition: top 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+    >*:not(:first-child){
+        filter: opacity(0);
+        transition: filter 0.15s linear;
+    }
+    &:hover{
+        z-index: 100;
+        transform: scale(2.5);
+        transition: transform 0.5s ease-in-out, z-index 0.5s linear;
+        >* {
+            display: block !important;
+            &:first-child {
+                top: 0;
+                transform: translate(0,0);
+            }
+            
+            &:not(:first-child) {
+                filter: opacity(1);
+                transition: filter 0.25s .25s linear;
+            }
+            
+            
+        } 
+        &:before {
+            opacity: 1;
+            transition: opacity 0.3s 0.1s linear;
+        }
+        
+    }
+    
+    &:before {
+        position: absolute;
+        z-index: -1;
+        top: 50%;
+        left: 50%;
+        content: '';
+        width: 100%;
+        height: 100%;
+        background-color: $bg-color;
+        opacity: 0;
+        transform: translate(-50%,-50%);
+        transition: opacity 0.25s 0.5s linear;
+    }
+    
+}
+
+.ship-card {
+    @extend .card;
+    height: 11vw;
+    width: 10.575vw;
+    margin-left: 0;
+    margin-right: 0.25vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    div {
+        margin: 0;
+    }
+}
+
+.ship {
+    @include cons-border;
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+    width: 58vw;
+    height: 30vw;
+    padding: 0 5vw 0 15vw;
+    border-radius: 20vw 7.5vw 7.5vw 20vw;
+    transform: translate(-50%, -50%) scale(0.9);
+    * {
+        position: relative;
+        z-index: 1;
+    }
+    >:last-child {
+        position: absolute;
+        z-index: -1;
+        top: 50%;
+        left: 0;
+        transform: translate(2.25vw, -50%);
+        >*:not(:first-child){
+            margin-top: 0.75vw;
+            font-size: 1.75em;
+            text-align: left;
+        }
+        tr {
+            position: relative;
+            z-index: 1;
+            &::after{
+                position: absolute;
+
+                top:0;
+                left:-0.5vw;
+                content: "";
+                width: 100%;
+                height: 100%;
+                border-radius: 0.5em;
+                padding-right: 0.5vw;
+                border: 0.25vw solid transparent;
+            }
+            &:hover {
+                @extend .border-gradient-selected2;
+                &::after {
+                    border-width: 0.25vw;
+                    top: -0.2vw;
+                    left: -0.4vw;
+                }
+            }
+        }
+        td:first-child {
+            font-weight: bold;
+        }
+    }
+}
+
+.ship:before {
+    @include cons-border;
+    background-color: $bg-color;
+    z-index: -1;
+    border-top: 0;
+    border-right: 0;
+    border-radius: 0;
+    position: absolute;
+    left: calc(-2.45vw * $root2);
+    top: 50%;
+    content: '';
+    height: 15vw;
+    width: 15vw;
+    transform: translate(0, -50%) rotate(45deg);
+}
+
+.enemy.ship {
+    position: absolute;
+    top: -50vh;
+    left: 45vw;
+    transform: translate(-50%, -50%) rotate(180deg) scale(0.9);
+    .cardholder {
+        transform: rotate(180deg);   
+    }
+    .mods>*:first-child {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        transform: rotate(180deg);
+    }
+    >*:last-child {
+        transform: rotate(180deg) translate(-20%,50%);
+    }
+
+}
+
+.combat {
+    transition: transform 0.5s ease-in-out;
+    position: relative;
+}
+
+.combat:active {
+    transform: translateY(50vh) scale(0.85) rotateX(55deg) rotateZ(12.5deg);
+}
+
+hr.card-divider {
+    border: 0;
+    border-top: 0.35vw solid black;
+    margin: 0 -0.35vw;
+}
