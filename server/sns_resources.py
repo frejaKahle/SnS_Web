@@ -30,21 +30,25 @@ class baseFaction():
         self.boarding_station_HP = max(min(self.boarding_station_HP - dmg,self.max_boarding_station_HP),0)
     
     def get_fresh(self,available_actions,action_history):
+        available_actions = available_actions if available_actions else self.get_available_actions()
         fresh = list(available_actions)
         for action in fresh:
             for round in action_history:
                 if action in round:
                     fresh.remove(action)
         return fresh
-    def get_stale(self,available_actions,action_history,i=0):
+    def stale_recurse(self,available_actions,action_history,i = -1):
         stale = []
+        available_actions = available_actions if available_actions else self.get_available_actions()
         if len(action_history) >= i: return []
-        for action in action_history[-(i + 1)]:
-            stale.append(action)
+        for action in available_actions:
+            if action in action_history[i]:
+                stale.append(action)
+        return stale + self.stale_recurse(stale, action_history, i = i - 1)
         
 
     def stale_penal(self,n):
-        return (n > 0) * -1 -  n
+        return (n > 0) * (-1 -  n)
     
     def fresh_bonus(self,round):
         return [0,1,1,3,3][round]
